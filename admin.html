@@ -1,0 +1,708 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Food Management - Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+:root{--purple:#7138c8;--pink:#ed68a5;--orange:#ffad5c;--dark:#24183b;--bg:#f7f4ff;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,Arial;background:var(--bg);color:var(--dark)}
+button,input,select{font-family:inherit}
+button{cursor:pointer;border:0}
+.hidden{display:none!important}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:25px;background:linear-gradient(135deg,#382078,#7844c8,#e66da9)}
+.login-card{width:100%;max-width:430px;background:white;border-radius:25px;overflow:hidden;box-shadow:0 25px 70px #21113b80}
+.login-image{height:220px;background:linear-gradient(0deg,#24183bb0,transparent),url('https://images.unsplash.com/photo-1547592180-85f173990554?w=1000') center/cover;display:flex;align-items:end;padding:25px;color:white}
+.login-image h1{font-size:27px;margin:0}
+.login-content{padding:28px}
+.login-content h2{margin:0 0 5px;font-size:23px}
+.login-content p{color:#8a7c9e;font-size:13px}
+.field{margin:15px 0}
+.field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
+.field input,.field select{width:100%;padding:13px;border:1px solid #e5dcef;border-radius:11px;outline:none;background:#fcfaff}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.password-line{display:flex;gap:8px;align-items:center;font-size:12px}
+.password-line input{width:auto}
+.login-btn{width:100%;padding:14px;border-radius:12px;color:white;font-weight:700;background:linear-gradient(100deg,var(--purple),var(--pink));box-shadow:0 7px 18px #a77bd255}
+.demo{text-align:center;font-size:11px;color:#9689a7;margin-top:15px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:255px;background:linear-gradient(160deg,#2d1b50,#512a86,#7538b5);color:white;padding:22px 15px;flex-shrink:0}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 25px}
+.brand span{color:#ffb5d5}
+.admin-info{background:#ffffff18;border-radius:14px;padding:13px;margin-bottom:22px}
+.admin-info small{color:#dfc9ff}
+.nav-title{font-size:10px;letter-spacing:2px;color:#cdb4ed;padding:10px}
+.nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:11px;background:transparent;color:#eee2ff;text-align:left;margin:4px 0;font-size:13px}
+.nav-btn:hover,.nav-btn.active{background:linear-gradient(100deg,#9b5ce0,#df68ae);color:white}
+.main{flex:1;min-width:0;padding:25px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
+.topbar h2{margin:0;font-size:23px}
+.topbar p{margin:4px 0;color:#8d80a0;font-size:12px}
+.logout{background:#fff0f4;color:#d94d83;padding:10px 15px;border-radius:10px;font-weight:700}
+.welcome{padding:25px;border-radius:20px;color:white;margin-bottom:22px;background:linear-gradient(110deg,#6633b6,#a34ed1,#ee72a9);position:relative;overflow:hidden}
+.welcome h2{margin:0 0 8px;font-size:23px}
+.welcome p{margin:0;font-size:13px;color:#f5e8ff}
+.welcome:after{content:"🍽️";position:absolute;right:35px;top:10px;font-size:85px;opacity:.4}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}
+.stat{background:white;border-radius:16px;padding:18px;box-shadow:0 5px 18px #47316b0c;border:1px solid #eee6f7}
+.stat-icon{font-size:25px}
+.stat small{color:#9185a3;font-size:11px}
+.stat h2{margin:8px 0 0;font-size:25px;color:#6734ad}
+.panel{background:white;padding:22px;border-radius:17px;margin-bottom:20px;box-shadow:0 5px 18px #47316b0c}
+.panel h3{margin:0 0 18px;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form-grid .field{margin:5px 0}
+.primary{padding:12px 18px;border-radius:10px;color:white;font-weight:700;background:linear-gradient(100deg,#7138c8,#c451b3)}
+.secondary{background:#f1e9ff;color:#7138c8;padding:10px 14px;border-radius:9px;font-weight:600}
+.food-card{border:1px solid #eee5f7;border-radius:15px;overflow:hidden;background:white}
+.food-card img{width:100%;height:125px;object-fit:cover;background:#eee}
+.food-body{padding:13px}
+.food-body h4{margin:0 0 5px}
+.food-body p{font-size:11px;color:#8b7c9c;margin:5px 0}
+.tag{display:inline-block;padding:5px 9px;border-radius:20px;background:#f1e8ff;color:#7138c8;font-size:10px;font-weight:700}
+.delete{background:#fff0f2;color:#d94d70;padding:8px 11px;border-radius:8px;margin-top:8px}
+.edit{background:#edf5ff;color:#3476bd;padding:8px 11px;border-radius:8px;margin-top:8px;margin-right:5px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #eee8f5;font-size:12px}
+th{color:#8a789f;background:#faf8fd}
+.empty{color:#9789a8;text-align:center;padding:20px;font-size:13px}
+.alert{background:#fff3e8;color:#b36a23;padding:12px;border-radius:10px;margin-bottom:12px;font-size:12px}
+.help{font-size:11px;color:#8b7c9c;margin-top:5px}
+.weekly-card{background:#fff;border:1px solid #eee5f7;border-radius:13px;padding:15px;margin-bottom:12px}
+.weekly-card h4{margin:0 0 8px}
+@media(max-width:900px){.sidebar{width:210px}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.app{display:block}.sidebar{width:100%;padding:12px}.brand{padding:5px 8px 12px}.admin-info{display:none}.nav-title{display:none}.sidebar nav{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}.nav-btn{margin:0;padding:10px;font-size:11px}.main{padding:13px}.topbar h2{font-size:18px}.welcome{padding:20px}.welcome:after{right:10px;font-size:55px}.stats{gap:9px}.stat{padding:13px}.stat h2{font-size:21px}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+ <div class="login-card">
+  <div class="login-image">
+   <div><h1>Smart Food 🍴</h1><div style="font-size:12px">Restaurant Management System</div></div>
+  </div>
+  <div class="login-content">
+   <h2>Welcome Admin!</h2>
+   <p>Login to manage your restaurant dashboard.</p>
+   <div class="field"><label>USERNAME</label><input id="username" placeholder="Enter username"></div>
+   <div class="field"><label>PASSWORD</label><input id="password" type="password" placeholder="Enter password"></div>
+   <label class="password-line"><input type="checkbox" id="showPassword" onchange="togglePassword()"> Show Password</label>
+   <br><br>
+   <button class="login-btn" onclick="loginAdmin()">LOGIN TO DASHBOARD →</button>
+   <div class="demo">Demo Login: admin / admin123</div>
+  </div>
+ </div>
+</div>
+
+<div class="app hidden" id="app">
+ <aside class="sidebar">
+  <div class="brand">🍽️ SMART <span>FOOD</span></div>
+  <div class="admin-info"><b>👤 Administrator</b><br><small>Management Portal</small></div>
+  <div class="nav-title">MAIN MENU</div>
+  <nav>
+   <button class="nav-btn active" onclick="showPage('home',this)">🏠 Dashboard</button>
+   <button class="nav-btn" onclick="showPage('foods',this)">🍛 Food Menu</button>
+   <button class="nav-btn" onclick="showPage('weekly',this)">📅 Weekly Menu</button>
+   <button class="nav-btn" onclick="showPage('orders',this)">🛍️ Food Orders</button>
+   <button class="nav-btn" onclick="showPage('preorders',this)">📝 Customer Preorder</button>
+   <button class="nav-btn" onclick="showPage('stock',this)">📦 Stock Management</button>
+   <button class="nav-btn" onclick="showPage('analytics',this)">📊 Sales Analytics</button>
+   <button class="nav-btn" onclick="showPage('report',this)">📈 Progress Report</button>
+   <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+  </nav>
+ </aside>
+
+ <main class="main">
+  <div class="topbar">
+   <div><h2 id="pageTitle">Dashboard</h2><p>Manage your restaurant operations</p></div>
+   <button class="logout" onclick="logout()">Logout ↗</button>
+  </div>
+
+  <section id="home" class="page">
+   <div class="welcome"><h2>Hello, Admin! 👋</h2><p>Welcome to your Smart Food Management Dashboard.</p></div>
+   <div class="stats">
+    <div class="stat"><div class="stat-icon">🍽️</div><small>Total Food Items</small><h2 id="totalFoods">0</h2></div>
+    <div class="stat"><div class="stat-icon">🛍️</div><small>Total Orders</small><h2 id="totalOrders">0</h2></div>
+    <div class="stat"><div class="stat-icon">📝</div><small>Customer Preorders</small><h2 id="totalPreorders">0</h2></div>
+    <div class="stat"><div class="stat-icon">⚠️</div><small>Low Stock Items</small><h2 id="lowStockCount">0</h2></div>
+   </div>
+   <div class="panel"><h3>✨ Quick Overview</h3><div id="dashboardLowStock"></div></div>
+   <div class="panel"><h3>🛍️ Recent Orders</h3><div id="recentOrders"></div></div>
+  </section>
+
+  <section id="foods" class="page hidden">
+   <div class="panel">
+    <h3>➕ Add New Food Item</h3>
+    <div class="form-grid">
+     <div class="field"><label>Food Name</label><input id="foodName" placeholder="Example: Idly"></div>
+     <div class="field"><label>Category</label>
+      <select id="foodCategory">
+       <option>South Indian</option><option>North Indian</option><option>Chinese</option><option>Italian</option><option>Continental</option><option>Mexican</option><option>Thai</option><option>Japanese</option><option>Korean</option><option>Fast Food</option><option>Street Food</option><option>Snacks</option><option>Breakfast</option><option>Lunch & Meals</option><option>Dinner</option><option>Vegetarian</option><option>Non-Vegetarian</option><option>Seafood</option><option>Bakery</option><option>Desserts</option><option>Ice Cream</option><option>Beverages</option><option>Juices & Shakes</option><option>Healthy Food</option><option>Salads</option><option>Tandoori</option><option>Grill & BBQ</option><option>Indian Sweets</option>
+      </select>
+     </div>
+     <div class="field"><label>Food Session</label><select id="foodSession"><option>Breakfast</option><option>Lunch</option><option>Evening</option><option>Dinner</option></select></div>
+     <div class="field"><label>Unit</label><select id="foodUnit"><option>Plate</option><option>Set</option><option>Gram</option></select></div>
+     <div class="field"><label>Available Quantity</label><input id="foodStock" type="number" min="0" placeholder="Enter stock"></div>
+     <div class="field"><label>Price (₹)</label><input id="foodPrice" type="number" min="0" placeholder="Enter price"></div>
+    </div>
+    <div class="field"><label>Food Image URL (Optional)</label><input id="foodImage" placeholder="Paste image URL"></div>
+    <button class="primary" id="foodSubmitBtn" onclick="saveFood()">＋ Add Food Item</button>
+    <button class="secondary hidden" id="foodCancelBtn" onclick="cancelFoodEdit()">Cancel Edit</button>
+   </div>
+   <div class="panel"><h3>🍱 Available Food Items</h3><div id="foodList" class="grid"></div></div>
+  </section>
+
+  <section id="weekly" class="page hidden">
+   <div class="panel">
+    <h3>📅 Create Weekly Menu</h3>
+    <div class="form-grid">
+     <div class="field"><label>Day</label>
+      <select id="weekDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
+     </div>
+     <div class="field"><label>Session</label>
+      <select id="weekSession"><option>Breakfast</option><option>Lunch</option><option>Evening</option><option>Dinner</option></select>
+     </div>
+    </div>
+    <div class="field">
+     <label>Select Food from Food Menu</label>
+     <select id="weekFoodSelect"><option value="">-- Select Food Item --</option></select>
+     <div class="help">Food Menu-ல் Add செய்த உணவுகள் இங்கே தானாக வரும்.</div>
+    </div>
+    <button class="primary" id="weeklySubmitBtn" onclick="saveWeekly()">＋ Add to Weekly Menu</button>
+    <button class="secondary hidden" id="weeklyCancelBtn" onclick="cancelWeeklyEdit()">Cancel Edit</button>
+   </div>
+   <div class="panel"><h3>📋 Weekly Menu List</h3><div id="weeklyList"></div></div>
+  </section>
+
+  <section id="orders" class="page hidden"><div class="panel"><h3>🛍️ Customer Orders</h3><div id="orderList"></div></div></section>
+  <section id="preorders" class="page hidden"><div class="panel"><h3>📝 Customer Preorders</h3><div id="preorderList"></div></div></section>
+  <section id="stock" class="page hidden"><div class="panel"><h3>📦 Stock Management</h3><div id="stockList"></div></div></section>
+  <section id="analytics" class="page hidden">
+   <div class="stats">
+    <div class="stat"><div class="stat-icon">💰</div><small>Total Sales</small><h2 id="salesTotal">₹0</h2></div>
+    <div class="stat"><div class="stat-icon">🧾</div><small>Orders Received</small><h2 id="salesOrders">0</h2></div>
+   </div>
+   <div class="panel"><h3>📊 Sales Summary</h3><div id="salesSummary"></div></div>
+  </section>
+  <section id="report" class="page hidden"><div class="panel"><h3>📈 Progress Report</h3><div id="progressReport"></div></div></section>
+ </main>
+</div>
+
+<script>
+const FOOD_KEY="smart_foods";
+const ORDER_KEY="smart_orders";
+const WEEK_KEY="smart_weekly_menu";
+const PRE_KEY="smart_preorders";
+const CATEGORY_KEY="smart_categories";
+
+const $ = id => document.getElementById(id);
+
+let editingFoodId = null;
+let editingWeeklyId = null;
+
+function getData(key){
+ try{
+  const value = JSON.parse(localStorage.getItem(key) || "[]");
+  return Array.isArray(value) ? value : [];
+ }catch(error){
+  return [];
+ }
+}
+
+function saveData(key,data){
+ localStorage.setItem(key,JSON.stringify(data));
+}
+
+function safe(value){
+ return String(value ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[c]));
+}
+
+function safeImage(value){
+ const v = String(value || "").trim();
+ return /^https?:\/\//i.test(v)
+  ? v
+  : "https://images.unsplash.com/photo-1547592180-85f173990554?w=500";
+}
+
+function syncCategories(){
+ const categories = [
+  ...new Set(
+   getData(FOOD_KEY)
+    .map(f=>String(f.category || f.foodCategory || "General").trim())
+    .filter(Boolean)
+  )
+ ];
+ saveData(CATEGORY_KEY,categories);
+}
+
+function togglePassword(){
+ $("password").type = $("showPassword").checked ? "text" : "password";
+}
+
+function loginAdmin(){
+ if($("username").value === "admin" && $("password").value === "admin123"){
+  $("loginPage").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  refreshAll();
+ }else{
+  alert("Incorrect username or password");
+ }
+}
+
+function logout(){
+ $("app").classList.add("hidden");
+ $("loginPage").classList.remove("hidden");
+ $("username").value = "";
+ $("password").value = "";
+}
+
+function showPage(id,btn){
+ document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+ $(id).classList.remove("hidden");
+
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+
+ const titles = {
+  home:"Dashboard",
+  foods:"Food Menu",
+  weekly:"Weekly Menu",
+  orders:"Food Orders",
+  preorders:"Customer Preorder",
+  stock:"Stock Management",
+  analytics:"Sales Analytics",
+  report:"Progress Report"
+ };
+
+ $("pageTitle").textContent = titles[id] || "Dashboard";
+ refreshAll();
+}
+
+/* FOOD MENU */
+
+function clearFoodForm(){
+ ["foodName","foodStock","foodPrice","foodImage"].forEach(id=>$(id).value="");
+
+ $("foodCategory").selectedIndex = 0;
+ $("foodSession").selectedIndex = 0;
+ $("foodUnit").selectedIndex = 0;
+
+ editingFoodId = null;
+
+ $("foodSubmitBtn").textContent = "＋ Add Food Item";
+ $("foodCancelBtn").classList.add("hidden");
+}
+
+function cancelFoodEdit(){
+ clearFoodForm();
+}
+
+function saveFood(){
+ const name = $("foodName").value.trim();
+ const stock = $("foodStock").value;
+ const price = $("foodPrice").value;
+
+ if(!name || stock === "" || price === ""){
+  alert("Please fill Food Name, Quantity and Price");
+  return;
+ }
+
+ if(Number(stock) < 0 || Number(price) < 0){
+  alert("Quantity and Price cannot be negative");
+  return;
+ }
+
+ const foods = getData(FOOD_KEY);
+
+ const item = {
+  name,
+  category:$("foodCategory").value,
+  session:$("foodSession").value,
+  unit:$("foodUnit").value,
+  stock:Number(stock),
+  price:Number(price),
+  image:$("foodImage").value.trim()
+ };
+
+ if(editingFoodId !== null){
+  const index = foods.findIndex(f=>String(f.id) === String(editingFoodId));
+
+  if(index !== -1){
+   foods[index] = {...foods[index],...item};
+  }
+
+  saveData(FOOD_KEY,foods);
+  alert("Food item updated successfully!");
+ }else{
+  foods.push({id:Date.now(),...item});
+  saveData(FOOD_KEY,foods);
+  alert("Food item added successfully!");
+ }
+
+ clearFoodForm();
+ syncCategories();
+ refreshAll();
+}
+
+function editFood(id){
+ const food = getData(FOOD_KEY).find(f=>String(f.id) === String(id));
+ if(!food)return;
+
+ editingFoodId = food.id;
+
+ $("foodName").value = food.name || "";
+ $("foodCategory").value = food.category || "South Indian";
+ $("foodSession").value = food.session || "Breakfast";
+ $("foodUnit").value = food.unit || "Plate";
+ $("foodStock").value = food.stock ?? 0;
+ $("foodPrice").value = food.price ?? 0;
+ $("foodImage").value = food.image || "";
+
+ $("foodSubmitBtn").textContent = "Save Food Changes";
+ $("foodCancelBtn").classList.remove("hidden");
+
+ document.querySelectorAll(".page").forEach(p=>{
+  if(p.id !== "foods")p.classList.add("hidden");
+ });
+
+ $("foods").classList.remove("hidden");
+ $("pageTitle").textContent = "Edit Food Item";
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteFood(id){
+ if(!confirm("Delete this food item?"))return;
+
+ const foods = getData(FOOD_KEY);
+ const food = foods.find(f=>String(f.id) === String(id));
+
+ saveData(
+  FOOD_KEY,
+  foods.filter(f=>String(f.id) !== String(id))
+ );
+
+ if(food){
+  const weekly = getData(WEEK_KEY).filter(w=>
+   String(w.foodId || "") !== String(id) &&
+   String(w.foodName || w.food || "").toLowerCase() !==
+   String(food.name || "").toLowerCase()
+  );
+
+  saveData(WEEK_KEY,weekly);
+ }
+
+ if(String(editingFoodId) === String(id)){
+  clearFoodForm();
+ }
+
+ syncCategories();
+ refreshAll();
+}
+
+/* WEEKLY MENU */
+
+function getWeeklyData(){
+ const foods = getData(FOOD_KEY);
+ const oldList = getData(WEEK_KEY);
+ let changed = false;
+
+ const list = oldList.map((w,index)=>{
+  const oldId = w.id ?? w.weeklyId ?? (Date.now() + index);
+  const oldName = w.foodName || w.food || w.name || "";
+
+  const matched = foods.find(f=>
+   (w.foodId !== undefined && String(f.id) === String(w.foodId)) ||
+   String(f.name || "").trim().toLowerCase() ===
+   String(oldName).trim().toLowerCase()
+  );
+
+  const item = {
+   ...w,
+   id:oldId,
+   foodId:matched ? matched.id : (w.foodId ?? ""),
+   foodName:matched ? matched.name : oldName,
+   food:matched ? matched.name : oldName
+  };
+
+  if(w.id === undefined ||
+     w.foodName !== item.foodName ||
+     String(w.foodId ?? "") !== String(item.foodId ?? "")){
+   changed = true;
+  }
+
+  return item;
+ });
+
+ if(changed){
+  saveData(WEEK_KEY,list);
+ }
+
+ return list;
+}
+
+function populateWeekFoodOptions(selectedId=""){
+ const foods = getData(FOOD_KEY);
+
+ $("weekFoodSelect").innerHTML =
+  '<option value="">-- Select Food Item --</option>' +
+  foods.map(f=>
+   `<option value="${safe(f.id)}">${safe(f.name)} (${safe(f.category || "General")})</option>`
+  ).join("");
+
+ $("weekFoodSelect").value = String(selectedId);
+}
+
+function clearWeeklyForm(){
+ $("weekDay").selectedIndex = 0;
+ $("weekSession").selectedIndex = 0;
+ $("weekFoodSelect").value = "";
+
+ editingWeeklyId = null;
+
+ $("weeklySubmitBtn").textContent = "＋ Add to Weekly Menu";
+ $("weeklyCancelBtn").classList.add("hidden");
+}
+
+function cancelWeeklyEdit(){
+ clearWeeklyForm();
+}
+
+function saveWeekly(){
+ const foodId = $("weekFoodSelect").value;
+
+ if(!foodId){
+  alert("Please select a food item from Food Menu");
+  return;
+ }
+
+ const food = getData(FOOD_KEY).find(f=>
+  String(f.id) === String(foodId)
+ );
+
+ if(!food){
+  alert("Selected food item was not found. Please try again.");
+  populateWeekFoodOptions();
+  return;
+ }
+
+ const list = getWeeklyData();
+
+ const item = {
+  day:$("weekDay").value,
+  session:$("weekSession").value,
+  foodId:food.id,
+  foodName:food.name,
+  food:food.name
+ };
+
+ if(editingWeeklyId !== null){
+  const index = list.findIndex(w=>
+   String(w.id) === String(editingWeeklyId)
+  );
+
+  if(index !== -1){
+   list[index] = {...list[index],...item};
+  }else{
+   list.push({id:editingWeeklyId,...item});
+  }
+
+  alert("Weekly Menu Updated Successfully!");
+ }else{
+  list.push({
+   id:Date.now(),
+   ...item
+  });
+
+  alert("Food Added to Weekly Menu Successfully!");
+ }
+
+ saveData(WEEK_KEY,list);
+ clearWeeklyForm();
+ refreshAll();
+}
+
+function editWeekly(id){
+ const list = getWeeklyData();
+
+ const item = list.find(w=>
+  String(w.id) === String(id)
+ );
+
+ if(!item){
+  alert("Weekly menu item not found!");
+  return;
+ }
+
+ editingWeeklyId = item.id;
+
+ $("weekDay").value = item.day || "Monday";
+ $("weekSession").value = item.session || "Breakfast";
+
+ populateWeekFoodOptions(item.foodId || "");
+
+ $("weeklySubmitBtn").textContent = "Save Weekly Menu Changes";
+ $("weeklyCancelBtn").classList.remove("hidden");
+
+ document.querySelectorAll(".page").forEach(p=>
+  p.classList.add("hidden")
+ );
+
+ $("weekly").classList.remove("hidden");
+ $("pageTitle").textContent = "Edit Weekly Menu";
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteWeekly(id){
+ if(!confirm("Are you sure you want to delete this menu item?")){
+  return;
+ }
+
+ const list = getWeeklyData();
+
+ const updatedList = list.filter(w=>
+  String(w.id) !== String(id)
+ );
+
+ saveData(WEEK_KEY,updatedList);
+
+ if(String(editingWeeklyId) === String(id)){
+  clearWeeklyForm();
+ }
+
+ refreshAll();
+}
+
+function renderWeekly(){
+ const list = getWeeklyData();
+
+ $("weeklyList").innerHTML = list.map(w=>`
+  <div class="weekly-card">
+   <h4>📅 ${safe(w.day || "")} - ${safe(w.session || "")}</h4>
+   <p>🍽️ <b>${safe(w.foodName || w.food || "Food item")}</b></p>
+   <button class="edit" onclick="editWeekly('${safe(w.id)}')">✏️ Edit</button>
+   <button class="delete" onclick="deleteWeekly('${safe(w.id)}')">🗑️ Delete</button>
+  </div>
+ `).join("") ||
+ '<div class="empty">No weekly menu added. Select food items above to create your weekly menu.</div>';
+}
+
+/* DISPLAY FOOD ITEMS */
+
+function renderFoods(foods){
+ $("foodList").innerHTML = foods.map(f=>`
+  <div class="food-card">
+   <img src="${safe(safeImage(f.image))}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1547592180-85f173990554?w=500'">
+   <div class="food-body">
+    <h4>${safe(f.name)}</h4>
+    <span class="tag">${safe(f.category || "General")}</span>
+    <p>🕒 ${safe(f.session || "Not set")}</p>
+    <p>📦 Stock: ${Number(f.stock) || 0} ${safe(f.unit || "")}</p>
+    <p>💰 Price: ₹${Number(f.price) || 0}</p>
+    <button class="edit" onclick="editFood('${safe(f.id)}')">Edit</button>
+    <button class="delete" onclick="deleteFood('${safe(f.id)}')">Delete Item</button>
+   </div>
+  </div>
+ `).join("") || '<div class="empty">No food items added yet.</div>';
+}
+
+/* DASHBOARD AND OTHER MODULES */
+
+function refreshAll(){
+ const foods = getData(FOOD_KEY);
+ const orders = getData(ORDER_KEY);
+ const preorders = getData(PRE_KEY);
+
+ const low = foods.filter(f=>Number(f.stock) <= 5);
+ const sales = orders.reduce((sum,o)=>sum + Number(o.total || 0),0);
+
+ syncCategories();
+
+ $("totalFoods").textContent = foods.length;
+ $("totalOrders").textContent = orders.length;
+ $("totalPreorders").textContent = preorders.length;
+ $("lowStockCount").textContent = low.length;
+
+ $("salesTotal").textContent = "₹" + sales.toFixed(2);
+ $("salesOrders").textContent = orders.length;
+
+ renderFoods(foods);
+
+ const selectedFoodId = editingWeeklyId !== null
+  ? $("weekFoodSelect").value
+  : "";
+
+ populateWeekFoodOptions(selectedFoodId);
+ renderWeekly();
+
+ $("orderList").innerHTML = orders.map(o=>`
+  <div class="food-card food-body" style="margin-bottom:12px">
+   <h4>Order #${safe(o.id || "")}</h4>
+   <p>Customer: ${safe(o.customer || "Customer")}</p>
+   <p>Food: ${safe(o.food || "")}</p>
+   <p>Amount: ₹${Number(o.total || 0).toFixed(2)}</p>
+   <p>Date: ${safe(o.date || "")}</p>
+  </div>
+ `).join("") || '<div class="empty">No customer orders received.</div>';
+
+ $("preorderList").innerHTML = preorders.map(p=>`
+  <div class="food-card food-body" style="margin-bottom:12px">
+   <h4>${safe(p.food || p.foodName || "Food")}</h4>
+   <p>Customer: ${safe(p.customer || "Customer")}</p>
+   <p>Date: ${safe(p.date || "")} | ${safe(p.session || "")}</p>
+   <p>Quantity: ${Number(p.qty || 0)}</p>
+  </div>
+ `).join("") || '<div class="empty">No customer preorders received.</div>';
+
+ $("stockList").innerHTML = foods.map(f=>`
+  <div class="food-card food-body" style="margin-bottom:10px">
+   <b>${safe(f.name)}</b>
+   <p>Available: ${Number(f.stock) || 0} ${safe(f.unit || "")}</p>
+   ${Number(f.stock) <= 5
+    ? '<span class="tag" style="background:#fff0e6;color:#c66c24">Low Stock Alert</span>'
+    : '<span class="tag">Stock Available</span>'}
+  </div>
+ `).join("") || '<div class="empty">No stock information available.</div>';
+
+ $("dashboardLowStock").innerHTML = low.map(f=>
+  `<div class="alert">⚠️ ${safe(f.name)} - Only ${Number(f.stock) || 0} ${safe(f.unit || "")} remaining</div>`
+ ).join("") || '<div class="empty">All food items have sufficient stock.</div>';
+
+ $("recentOrders").innerHTML = orders.slice(-5).reverse().map(o=>
+  `<p>🛍️ ${safe(o.customer || "Customer")} — ₹${Number(o.total || 0).toFixed(2)}</p>`
+ ).join("") || '<div class="empty">No recent orders.</div>';
+
+ $("salesSummary").innerHTML = `
+  <p>Total orders: <b>${orders.length}</b></p>
+  <p>Total sales recorded: <b>₹${sales.toFixed(2)}</b></p>
+  <p>Food varieties: <b>${foods.length}</b></p>
+ `;
+
+ $("progressReport").innerHTML = `
+  <p>Food varieties added: <b>${foods.length}</b></p>
+  <p>Customer orders received: <b>${orders.length}</b></p>
+  <p>Preorders received: <b>${preorders.length}</b></p>
+  <p>Low stock items: <b>${low.length}</b></p>
+ `;
+}
+
+window.addEventListener("storage",function(event){
+ if([FOOD_KEY,ORDER_KEY,WEEK_KEY,PRE_KEY].includes(event.key)){
+  refreshAll();
+ }
+});
+</script>
+</body>
+</html>

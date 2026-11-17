@@ -1,0 +1,573 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Food - Customer Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f4f5fb;color:#25243a}
+header{background:linear-gradient(120deg,#30236b,#7045b5,#a45bd4);color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;box-shadow:0 5px 18px #30236b30}
+header h1{font-size:25px}
+header p{font-size:13px;margin-top:5px;color:#e8ddff}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button{border:none;border-radius:9px;padding:11px 17px;cursor:pointer;font-weight:bold;transition:.2s}
+button:hover{transform:translateY(-2px);opacity:.9}
+button:disabled{opacity:.5;cursor:not-allowed}
+.logout{background:#ffb347;color:#38214d}
+nav{background:white;padding:13px 5%;display:none;gap:10px;flex-wrap:wrap;box-shadow:0 3px 12px #0000000d}
+nav button{background:#f0eaff;color:#58399b}
+nav button.active{background:#623bb0;color:white}
+.container{width:90%;max-width:1200px;margin:28px auto}
+.page{display:none}
+.page.active{display:block}
+.section-title{margin-bottom:20px}
+.section-title h2{font-size:25px;color:#38266e}
+.section-title p{color:#777;margin-top:6px;font-size:14px}
+.card{background:white;padding:22px;border-radius:16px;box-shadow:0 5px 20px #30236b0c;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:17px;margin-bottom:25px}
+.stat{padding:23px;border-radius:16px;color:white;background:linear-gradient(135deg,#6241b5,#a66be0);box-shadow:0 6px 18px #6040a525}
+.stat:nth-child(2){background:linear-gradient(135deg,#e77a45,#ffb36b)}
+.stat:nth-child(3){background:linear-gradient(135deg,#168b87,#50c8b1)}
+.stat:nth-child(4){background:linear-gradient(135deg,#3d65b9,#76a6ed)}
+.stat h3{font-size:14px;font-weight:normal}
+.stat h2{font-size:29px;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.food-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px #0000000d;border:1px solid #eee}
+.food-top{height:110px;background:linear-gradient(135deg,#eee5ff,#fce8f1);display:flex;align-items:center;justify-content:center;font-size:48px}
+.food-info{padding:17px}
+.food-info h3{color:#38266e;margin-bottom:8px}
+.food-info p{font-size:13px;color:#777;margin:6px 0}
+.price{font-size:19px;color:#e47735;font-weight:bold;margin:12px 0}
+.food-actions{display:flex;gap:8px;align-items:center;margin-top:12px}
+.food-actions input{width:65px;padding:9px}
+.primary{background:#6742b4;color:white}
+.secondary{background:#eee7ff;color:#58369b}
+.danger{background:#ffe4e4;color:#c03939}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:9px;margin:7px 0 14px;outline:none;background:white}
+input:focus,select:focus{border-color:#8155c9}
+label{font-size:13px;font-weight:bold;color:#51476b}
+table{width:100%;border-collapse:collapse;min-width:550px}
+th,td{padding:13px;text-align:left;border-bottom:1px solid #eee;font-size:14px}
+th{background:#f1ebff;color:#55378e}
+.table-wrap{overflow-x:auto}
+.empty{text-align:center;color:#888;padding:25px}
+.category-list{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}
+.category-list button{background:white;color:#5c3a9d;border:1px solid #e3d8f6}
+.category-list button.active{background:#6742b4;color:white}
+.bill-total{background:#f4efff;padding:18px;border-radius:12px;margin-top:15px;line-height:2}
+.bill-total h2{color:#633eae}
+.order-card{border:1px solid #eee;padding:18px;border-radius:13px;margin-bottom:15px}
+.order-card h3{color:#53338f;margin-bottom:8px}
+.status{display:inline-block;padding:6px 11px;border-radius:20px;background:#fff0d8;color:#a76713;font-size:12px;font-weight:bold}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#30236b,#7045b5,#b36bd4)}
+.login-box{background:white;width:100%;max-width:420px;padding:35px;border-radius:20px;box-shadow:0 15px 45px #17102d55}
+.login-logo{width:70px;height:70px;border-radius:20px;background:linear-gradient(135deg,#6841b4,#ad70df);display:flex;align-items:center;justify-content:center;font-size:35px;margin:0 auto 18px}
+.login-box h2{text-align:center;color:#38266e;margin-bottom:8px}
+.subtitle{text-align:center;color:#888;font-size:13px;margin-bottom:25px}
+.login-box button{width:100%;margin-top:8px}
+.switch{text-align:center;margin-top:18px;font-size:13px;color:#777}
+.switch a{color:#7045b5;font-weight:bold;cursor:pointer}
+.message{font-size:13px;margin:8px 0;color:#d04444}
+.payment-info{background:#f4efff;padding:14px;border-radius:10px;margin:10px 0 15px;color:#54358e;font-size:13px;line-height:1.6}
+.payment-choice{background:#faf8ff;padding:15px;border:1px solid #e6dcf8;border-radius:12px;margin:10px 0}
+footer{text-align:center;padding:25px;color:#888;font-size:13px}
+.preorder-banner{background:linear-gradient(120deg,#39236d,#8050b5,#c16bd1);color:white;padding:25px;border-radius:17px;margin-bottom:20px}
+.preorder-banner h2{font-size:24px;margin-bottom:9px}
+.preorder-banner p{font-size:13px;color:#eee0ff;line-height:1.7}
+.preorder-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.preorder-summary{background:#f4efff;padding:18px;border-radius:12px;margin:15px 0;line-height:2}
+.preorder-summary h2{color:#633eae}
+.preorder-card{background:white;border:1px solid #e8dff4;border-left:5px solid #8050b5;padding:18px;border-radius:13px;margin-bottom:14px;box-shadow:0 4px 14px #00000008}
+.preorder-card h3{color:#57358f;margin-bottom:10px}
+.preorder-card p{font-size:13px;color:#666;margin:7px 0}
+.preorder-note{background:#fff5e7;padding:13px;border-radius:10px;color:#95621d;font-size:13px;line-height:1.6;margin:12px 0}
+.preorder-food-card{background:white;border:2px solid #eee3fa;border-radius:15px;overflow:hidden;cursor:pointer;transition:.2s}
+.preorder-food-card:hover{border-color:#8050b5;transform:translateY(-3px)}
+.preorder-food-card.selected{border-color:#6742b4;box-shadow:0 0 0 3px #6742b422}
+.preorder-food-card .food-top{height:100px}
+.preorder-food-card .food-info{padding:14px}
+.preorder-food-card .choose-btn{width:100%;margin-top:10px}
+.preorder-category-title{color:#55378e;margin:20px 0 12px}
+@media(max-width:600px){
+header{padding:18px 5%}
+header h1{font-size:20px}
+.container{width:94%;margin:20px auto}
+.login-box{padding:25px}
+.food-actions{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+ <div class="login-box">
+  <div class="login-logo">🍽️</div>
+  <h2 id="loginTitle">Customer Login</h2>
+  <p class="subtitle">Welcome to Smart Food Management</p>
+  <div id="registerFields" style="display:none">
+   <label>Full Name</label><input id="regName" placeholder="Enter your name">
+  </div>
+  <label>Username</label><input id="username" placeholder="Enter username">
+  <label>Password</label><input id="password" type="password" placeholder="Enter password">
+  <p id="loginMessage" class="message"></p>
+  <button class="primary" id="loginButton" onclick="login()">Login</button>
+  <div class="switch"><span id="switchText">New customer?</span> <a onclick="toggleRegister()" id="switchLink">Create Account</a></div>
+ </div>
+</div>
+
+<header id="mainHeader" style="display:none">
+ <div><h1>🍽️ Smart Food Management</h1><p>Fresh Food • Smart Ordering • Less Food Waste</p></div>
+ <div class="header-right"><span id="welcomeUser">Welcome!</span><button class="logout" onclick="logout()">Logout ↗</button></div>
+</header>
+
+<nav id="mainNav">
+ <button class="active" onclick="showPage('home',this)">🏠 Home</button>
+ <button onclick="showPage('menu',this)">🍴 Food Menu</button>
+ <button onclick="showPage('bill',this)">🧾 My Bill</button>
+ <button onclick="showPage('orders',this)">📦 My Orders</button>
+ <button onclick="showPage('weekly',this)">📅 Weekly Menu</button>
+ <button onclick="showPage('preorder',this)">🗓️ Customer Pre-Order</button>
+ <button onclick="showPage('myPreorders',this)">📋 My Pre-Orders</button>
+</nav>
+
+<div class="container" id="app" style="display:none">
+<section id="home" class="page active">
+ <div class="section-title"><h2>Customer Dashboard</h2><p>Welcome! Explore delicious food and place your order.</p></div>
+ <div class="stats">
+  <div class="stat"><h3>Available Food Items</h3><h2 id="foodCount">0</h2></div>
+  <div class="stat"><h3>My Orders</h3><h2 id="orderCount">0</h2></div>
+  <div class="stat"><h3>Cart Items</h3><h2 id="cartCount">0</h2></div>
+  <div class="stat"><h3>My Total Orders</h3><h2 id="totalSpent">₹0</h2></div>
+ </div>
+ <div class="card"><h2>Welcome to Smart Food! 👋</h2><p style="color:#777;margin:12px 0">Choose your favourite food, select the required quantity, check your bill and confirm your order.</p><button class="primary" onclick="showPage('menu')">Explore Food Menu →</button></div>
+ <div class="card">
+  <h3 style="color:#55378e;margin-bottom:15px">✨ Why Choose Us?</h3>
+  <div class="grid">
+   <div><h3>🍱 Smart Quantity</h3><p style="color:#777;margin-top:7px">Order the quantity you need.</p></div>
+   <div><h3>📋 Easy Billing</h3><p style="color:#777;margin-top:7px">Automatic bill calculation.</p></div>
+   <div><h3>♻️ Less Food Waste</h3><p style="color:#777;margin-top:7px">Pre-order and reduce food waste.</p></div>
+  </div>
+ </div>
+ <div class="preorder-banner"><h2>🗓️ Plan Your Meals in Advance!</h2><p>Book your favourite food up to 7 days in advance. Choose your date, session and quantity.</p><button style="background:#ffb347;color:#38214d;margin-top:14px" onclick="showPage('preorder')">Book Your Food →</button></div>
+</section>
+
+<section id="menu" class="page">
+ <div class="section-title"><h2>🍴 Food Menu</h2><p>Choose a category and add your favourite food to the bill.</p></div>
+ <div class="category-list" id="categoryList"></div>
+ <div class="grid" id="foodList"></div>
+</section>
+
+<section id="bill" class="page">
+ <div class="section-title"><h2>🧾 My Bill</h2><p>Review your selected food items and total amount.</p></div>
+ <div class="card">
+  <div class="table-wrap"><table><thead><tr><th>Food Name</th><th>Price</th><th>Quantity</th><th>Total</th><th>Action</th></tr></thead><tbody id="billItems"></tbody></table></div>
+  <div class="bill-total">
+   <p>Subtotal: <b id="subtotal">₹0</b></p><p>Tax (5%): <b id="tax">₹0</b></p>
+   <h2>Grand Total: <span id="grandTotal">₹0</span></h2>
+  </div>
+  <div style="margin-top:18px">
+   <label>Choose Payment Method</label>
+   <select id="paymentMethod" onchange="showPaymentInfo()"><option value="UPI">UPI</option><option value="Pay at Cash Counter">Pay at Cash Counter</option></select>
+   <div id="upiOptions" class="payment-choice"><label>Select UPI App</label><select id="upiApp"><option value="Paytm">Paytm</option><option value="PhonePe">PhonePe</option><option value="GPay">GPay</option></select><p style="font-size:12px;color:#777">Select your preferred UPI application.</p></div>
+   <div class="payment-info" id="paymentInfo">UPI selected. Choose Paytm, PhonePe or GPay.</div>
+   <button class="primary" onclick="confirmOrder()">Confirm Order ✓</button><p id="billMessage" class="message"></p>
+  </div>
+ </div>
+</section>
+
+<section id="orders" class="page">
+ <div class="section-title"><h2>📦 My Orders</h2><p>View your previous orders and payment status.</p></div><div id="ordersList"></div>
+</section>
+
+<section id="weekly" class="page">
+ <div class="section-title"><h2>📅 Weekly Menu</h2><p>View the food menu planned by the admin.</p></div>
+ <div class="card"><div class="table-wrap"><table><thead><tr><th>Day</th><th>Session</th><th>Food Name</th><th>Category</th><th>Price</th></tr></thead><tbody id="weeklyList"></tbody></table></div></div>
+</section>
+
+<section id="preorder" class="page">
+ <div class="section-title"><h2>🗓️ Customer Pre-Order</h2><p>Book your favourite food in advance.</p></div>
+ <div class="preorder-banner"><h2>🍱 7-Day Advance Booking</h2><p>Select a future date, session, food category and food card. Your booking will be sent to Admin for confirmation.</p></div>
+ <div class="card">
+  <h3 style="color:#55378e;margin-bottom:18px">Create Your Pre-Order</h3>
+  <div class="preorder-form">
+   <div><label>Choose Booking Date</label><input type="date" id="preDate" onchange="updatePreorderOptions()"></div>
+   <div><label>Choose Session</label><select id="preSession" onchange="updatePreorderOptions()"><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option><option value="Dinner">Dinner</option></select></div>
+   <div><label>Choose Food Category</label><select id="preCategory" onchange="renderPreorderFoods()"><option value="All">All Categories</option></select></div>
+  </div>
+  <h3 class="preorder-category-title">🍽️ Select Your Food</h3>
+  <div class="grid" id="preFoodCards"></div>
+  <div class="preorder-note" id="preorderAvailability">Select a date and session to view the available weekly menu.</div>
+  <div class="preorder-summary">
+   <p>Selected Food: <b id="preFoodName">Not selected</b></p>
+   <p>Category: <b id="preFoodCategory">Not selected</b></p>
+   <p>Price: <b id="preFoodPrice">₹0</b></p>
+   <p>Quantity:</p><input type="number" id="preQty" min="1" value="1" oninput="updatePreorderPrice()">
+   <h2>Estimated Total: <span id="preTotal">₹0</span></h2>
+  </div>
+  <label>Payment Method</label>
+  <select id="prePaymentMethod"><option value="Pay at Cash Counter">Pay at Cash Counter</option><option value="UPI - Paytm">UPI - Paytm</option><option value="UPI - PhonePe">UPI - PhonePe</option><option value="UPI - GPay">UPI - GPay</option></select>
+  <div class="payment-info">Pre-Order payment will remain Pending until payment is received and verified. Booking confirmation depends on Admin approval.</div>
+  <button class="primary" onclick="confirmPreorder()">Confirm Pre-Order ✓</button><p id="preMessage" class="message"></p>
+ </div>
+</section>
+
+<section id="myPreorders" class="page">
+ <div class="section-title"><h2>📋 My Pre-Orders</h2><p>Track your advance bookings and confirmation status.</p></div><div id="myPreordersList"></div>
+</section>
+</div>
+
+<footer id="mainFooter" style="display:none">Smart Food Management System © 2026 | Customer Portal</footer>
+
+<script>
+const KEY={
+ foods:"smart_foods",
+ orders:"smart_orders",
+ weekly:"smart_weekly_menu",
+ categories:"smart_categories",
+ users:"smart_users",
+ preorders:"smart_preorders"
+};
+
+const DEFAULT_CATEGORIES=[
+"South Indian","North Indian","Chinese","Italian","Continental",
+"Mexican","Thai","Japanese","Korean","Fast Food","Street Food",
+"Snacks","Breakfast","Lunch & Meals","Dinner","Vegetarian",
+"Non-Vegetarian","Seafood","Bakery","Desserts","Ice Cream",
+"Beverages","Juices & Shakes","Healthy Food","Salads","Tandoori",
+"Grill & BBQ","Indian Sweets"
+];
+
+let currentUser=null,cart=[],selectedCategory="All",selectedPreFood=null;
+
+function read(key){
+ try{
+  const data=JSON.parse(localStorage.getItem(key));
+  return Array.isArray(data)?data:[];
+ }catch(e){return []}
+}
+function write(key,data){localStorage.setItem(key,JSON.stringify(data));}
+
+function getFoodName(f){return f.name||f.foodName||f.food_name||"Food";}
+function getFoodPrice(f){return Number(f.price??f.foodPrice??f.food_price??0);}
+function getFoodCategory(f){
+ return String(f.category||f.foodCategory||f.categoryName||f.foodCategoryName||f.food_category||f.food_category_name||"General").trim();
+}
+function getFoodStock(f){return Number(f.stock??f.quantity??f.availableQuantity??f.availableQty??0);}
+function getFoodUnit(f){return f.unit||f.foodUnit||"Plate";}
+function getCategoryName(item){
+ if(typeof item==="string")return item.trim();
+ if(item&&typeof item==="object")return String(item.name||item.category||item.categoryName||item.foodCategory||"").trim();
+ return "";
+}
+function escapeHTML(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function escapeJS(v){return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+
+function toggleRegister(){
+ const fields=document.getElementById("registerFields"),isRegister=fields.style.display==="none";
+ fields.style.display=isRegister?"block":"none";
+ document.getElementById("loginTitle").textContent=isRegister?"Create Account":"Customer Login";
+ document.getElementById("loginButton").textContent=isRegister?"Register":"Login";
+ document.getElementById("switchText").textContent=isRegister?"Already registered?":"New customer?";
+ document.getElementById("switchLink").textContent=isRegister?"Login Here":"Create Account";
+ document.getElementById("loginMessage").textContent="";
+}
+function login(){
+ const username=document.getElementById("username").value.trim(),password=document.getElementById("password").value;
+ const isRegister=document.getElementById("registerFields").style.display!=="none",users=read(KEY.users),msg=document.getElementById("loginMessage");
+ msg.style.color="#d04444";
+ if(!username||!password){msg.textContent="Please enter username and password.";return;}
+ if(isRegister){
+  const name=document.getElementById("regName").value.trim();
+  if(!name){msg.textContent="Please enter your full name.";return;}
+  if(users.some(u=>u.username===username)){msg.textContent="Username already exists.";return;}
+  users.push({name,username,password});write(KEY.users,users);
+  msg.style.color="green";msg.textContent="Account created! Please login.";toggleRegister();
+  document.getElementById("username").value=username;document.getElementById("password").value="";return;
+ }
+ const user=users.find(u=>u.username===username&&u.password===password);
+ if(!user){msg.textContent="Invalid username or password. Please register first.";return;}
+ currentUser=user;openDashboard();
+}
+function openDashboard(){
+ document.getElementById("loginScreen").style.display="none";
+ document.getElementById("mainHeader").style.display="flex";
+ document.getElementById("mainNav").style.display="flex";
+ document.getElementById("app").style.display="block";
+ document.getElementById("mainFooter").style.display="block";
+ document.getElementById("welcomeUser").textContent="Welcome, "+currentUser.name+"!";
+ refreshAll();
+}
+function logout(){
+ currentUser=null;cart=[];
+ document.getElementById("loginScreen").style.display="flex";
+ document.getElementById("mainHeader").style.display="none";
+ document.getElementById("mainNav").style.display="none";
+ document.getElementById("app").style.display="none";
+ document.getElementById("mainFooter").style.display="none";
+ document.getElementById("username").value="";
+ document.getElementById("password").value="";
+}
+function showPage(page,btn){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ if(page==="menu"){renderCategories();renderFoods();}
+ if(page==="bill")renderBill();
+ if(page==="orders")renderOrders();
+ if(page==="weekly")renderWeekly();
+ if(page==="home")renderDashboard();
+ if(page==="preorder"){setPreorderDateLimits();updatePreorderOptions();}
+ if(page==="myPreorders")renderMyPreorders();
+}
+function refreshAll(){
+ renderDashboard();renderCategories();renderFoods();renderBill();renderOrders();renderWeekly();renderMyPreorders();
+}
+function renderDashboard(){
+ const foods=read(KEY.foods),orders=read(KEY.orders).filter(o=>o.customer===currentUser.username);
+ document.getElementById("foodCount").textContent=foods.length;
+ document.getElementById("orderCount").textContent=orders.length;
+ document.getElementById("cartCount").textContent=cart.reduce((s,i)=>s+i.qty,0);
+ document.getElementById("totalSpent").textContent="₹"+orders.reduce((s,o)=>s+Number(o.total||o.amount||0),0).toFixed(2);
+}
+
+/* CATEGORY SYNC: Admin categories + standard categories + food categories */
+function collectCategories(){
+ const map=new Map();
+ function add(value){
+  const name=getCategoryName(value);
+  if(name&&name.toLowerCase()!=="general"&&!map.has(name.toLowerCase()))map.set(name.toLowerCase(),name);
+ }
+ DEFAULT_CATEGORIES.forEach(add);
+ read(KEY.categories).forEach(add);
+ read(KEY.foods).forEach(f=>add(getFoodCategory(f)));
+ read(KEY.weekly).forEach(w=>add(w.category||w.foodCategory||w.categoryName));
+ return [...map.values()].sort((a,b)=>a.localeCompare(b));
+}
+function renderCategories(){
+ const categories=collectCategories();
+ const all=["All",...categories];
+ document.getElementById("categoryList").innerHTML=all.map(c=>
+  `<button class="${selectedCategory.toLowerCase()===c.toLowerCase()?"active":""}" onclick="selectCategory('${escapeJS(c)}')">${escapeHTML(c)}</button>`
+ ).join("");
+}
+function selectCategory(c){
+ selectedCategory=c;renderCategories();renderFoods();
+}
+function renderFoods(){
+ const foods=read(KEY.foods);
+ const filtered=selectedCategory==="All"?foods:foods.filter(f=>getFoodCategory(f).toLowerCase()===selectedCategory.toLowerCase());
+ const list=document.getElementById("foodList");
+ if(!filtered.length){list.innerHTML='<div class="card empty">No food items available in this category. Admin can add food items in this category.</div>';return;}
+ list.innerHTML=filtered.map(f=>{
+  const id=f.id??f.foodId??getFoodName(f);
+  const stock=getFoodStock(f);
+  return `<div class="food-card">
+   <div class="food-top">${escapeHTML(f.emoji||"🍽️")}</div>
+   <div class="food-info">
+    <h3>${escapeHTML(getFoodName(f))}</h3>
+    <p>Category: ${escapeHTML(getFoodCategory(f))}</p>
+    <p>Available Stock: ${stock} ${escapeHTML(getFoodUnit(f))}</p>
+    <div class="price">₹${getFoodPrice(f).toFixed(2)}</div>
+    <div class="food-actions">
+     <input type="number" min="1" max="${stock}" value="1" id="qty_${escapeJS(id)}">
+     <button class="primary" onclick="addToBill('${escapeJS(id)}')" ${stock<=0?"disabled":""}>Add to Bill +</button>
+    </div>
+   </div>
+  </div>`;
+ }).join("");
+}
+function addToBill(id){
+ const food=read(KEY.foods).find(f=>String(f.id??f.foodId??getFoodName(f))===String(id));
+ if(!food)return;
+ const qty=Number(document.getElementById("qty_"+id).value),stock=getFoodStock(food);
+ if(!Number.isInteger(qty)||qty<1){alert("Enter a valid quantity.");return;}
+ if(qty>stock){alert("Only "+stock+" quantity available.");return;}
+ const existing=cart.find(i=>String(i.id)===String(id));
+ if(existing){if(existing.qty+qty>stock){alert("Requested quantity exceeds available stock.");return;}existing.qty+=qty;}
+ else cart.push({id:food.id??food.foodId??getFoodName(food),name:getFoodName(food),price:getFoodPrice(food),qty,unit:getFoodUnit(food)});
+ alert("Food added to your bill!");renderBill();renderDashboard();
+}
+function renderBill(){
+ const tbody=document.getElementById("billItems");
+ tbody.innerHTML=cart.length?cart.map((i,n)=>`<tr><td>${escapeHTML(i.name)}</td><td>₹${i.price.toFixed(2)}</td><td>${i.qty} ${escapeHTML(i.unit)}</td><td>₹${(i.price*i.qty).toFixed(2)}</td><td><button class="danger" onclick="removeItem(${n})">Remove</button></td></tr>`).join(""):'<tr><td colspan="5" class="empty">Your bill is empty. Add food from the menu.</td></tr>';
+ const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0),tax=subtotal*.05;
+ document.getElementById("subtotal").textContent="₹"+subtotal.toFixed(2);
+ document.getElementById("tax").textContent="₹"+tax.toFixed(2);
+ document.getElementById("grandTotal").textContent="₹"+(subtotal+tax).toFixed(2);
+}
+function removeItem(n){cart.splice(n,1);renderBill();renderDashboard();}
+function showPaymentInfo(){
+ const method=document.getElementById("paymentMethod").value;
+ document.getElementById("upiOptions").style.display=method==="UPI"?"block":"none";
+ document.getElementById("paymentInfo").textContent=method==="UPI"?"UPI selected. Choose Paytm, PhonePe or GPay.":"Please pay cash directly at the hotel cash counter.";
+}
+function confirmOrder(){
+ const msg=document.getElementById("billMessage");msg.style.color="#d04444";
+ if(!cart.length){msg.textContent="Please add food items before confirming.";return;}
+ const foods=read(KEY.foods);
+ for(const i of cart){
+  const f=foods.find(x=>String(x.id??x.foodId??getFoodName(x))===String(i.id));
+  if(!f||getFoodStock(f)<i.qty){msg.textContent="Stock changed for "+i.name+". Please check the menu.";return;}
+ }
+ cart.forEach(i=>{
+  const f=foods.find(x=>String(x.id??x.foodId??getFoodName(x))===String(i.id));
+  if(f.stock!==undefined)f.stock=getFoodStock(f)-i.qty;else f.quantity=getFoodStock(f)-i.qty;
+ });
+ write(KEY.foods,foods);
+ const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0),tax=subtotal*.05,total=subtotal+tax;
+ const method=document.getElementById("paymentMethod").value==="UPI"?"UPI - "+document.getElementById("upiApp").value:"Pay at Cash Counter";
+ const order={id:"ORD"+Date.now(),customer:currentUser.username,customerName:currentUser.name,date:new Date().toLocaleString(),items:cart.map(i=>({...i,quantity:i.qty})),subtotal,tax,total,amount:total,paymentMethod:method,paymentStatus:"Pending",orderStatus:"Pending",createdAt:Date.now()};
+ const orders=read(KEY.orders);orders.push(order);write(KEY.orders,orders);cart=[];
+ msg.style.color="green";msg.textContent="Order confirmed! Order ID: "+order.id+" | Payment: "+method+" | Status: Pending";
+ refreshAll();
+}
+function renderOrders(){
+ const orders=read(KEY.orders).filter(o=>o.customer===currentUser.username).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)),list=document.getElementById("ordersList");
+ if(!orders.length){list.innerHTML='<div class="card empty">No orders found. Place your first order!</div>';return;}
+ list.innerHTML=orders.map(o=>`<div class="order-card"><h3>Order ID: ${escapeHTML(o.id)}</h3><p style="color:#888;font-size:13px;margin:8px 0">${escapeHTML(o.date||"")}</p><b>Food Items:</b><ul style="padding-left:20px;margin:10px 0">${(o.items||[]).map(i=>`<li>${escapeHTML(i.name||i.foodName)} × ${Number(i.qty||i.quantity||1)}</li>`).join("")}</ul><p><b>Total Amount:</b> ₹${Number(o.total||o.amount||0).toFixed(2)}</p><p style="margin:8px 0">Payment Method: <b>${escapeHTML(o.paymentMethod||"")}</b></p><p>Payment Status: <span class="status">${escapeHTML(o.paymentStatus||"Pending")}</span></p><p>Order Status: <span class="status">${escapeHTML(o.orderStatus||"Pending")}</span></p></div>`).join("");
+}
+function renderWeekly(){
+ const menu=read(KEY.weekly),tbody=document.getElementById("weeklyList"),foods=read(KEY.foods);
+ if(!menu.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Weekly menu has not been added by admin yet.</td></tr>';return;}
+ tbody.innerHTML=menu.map(m=>{
+  const f=foods.find(x=>String(x.id)===String(m.foodId))||foods.find(x=>getFoodName(x).toLowerCase()===String(m.foodName||m.food||"").toLowerCase());
+  return `<tr><td>${escapeHTML(m.day||"")}</td><td>${escapeHTML(m.session||"")}</td><td>${escapeHTML(f?getFoodName(f):m.foodName||m.food||"")}</td><td>${escapeHTML(f?getFoodCategory(f):m.category||"Not specified")}</td><td>₹${(f?getFoodPrice(f):Number(m.price||0)).toFixed(2)}</td></tr>`;
+ }).join("");
+}
+
+/* PRE-ORDER */
+function localDateString(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function setPreorderDateLimits(){
+ const input=document.getElementById("preDate"),today=new Date(),tomorrow=new Date(today),last=new Date(today);
+ tomorrow.setDate(today.getDate()+1);last.setDate(today.getDate()+7);
+ input.min=localDateString(tomorrow);input.max=localDateString(last);
+ if(!input.value||input.value<input.min||input.value>input.max)input.value=input.min;
+}
+function selectedDay(){
+ const v=document.getElementById("preDate").value;
+ return v?new Date(v+"T12:00:00").toLocaleDateString("en-US",{weekday:"long"}):"";
+}
+function updatePreorderCategories(){
+ const select=document.getElementById("preCategory"),old=select.value||"All";
+ const categories=collectCategories();
+ select.innerHTML='<option value="All">All Categories</option>';
+ categories.forEach(c=>{
+  const option=document.createElement("option");
+  option.value=c;option.textContent=c;select.appendChild(option);
+ });
+ select.value=categories.some(c=>c.toLowerCase()===old.toLowerCase())?categories.find(c=>c.toLowerCase()===old.toLowerCase()):"All";
+}
+function normalizeSession(value){
+ const s=String(value||"").trim().toLowerCase();
+ if(s==="dinner"||s==="night"||s==="evening")return "evening";
+ if(s==="morning"||s==="breakfast")return "morning";
+ if(s==="afternoon"||s==="lunch")return "afternoon";
+ return s;
+}
+function getPreorderAvailableFoods(){
+ const date=document.getElementById("preDate").value,session=document.getElementById("preSession").value;
+ if(!date)return [];
+ const day=selectedDay(),weekly=read(KEY.weekly),foods=read(KEY.foods),result=[];
+ const entries=weekly.filter(item=>
+  String(item.day||item.weekDay||"").trim().toLowerCase()===day.toLowerCase()&&
+  normalizeSession(item.session||item.mealSession)===normalizeSession(session)
+ );
+ entries.forEach(item=>{
+  const itemId=item.foodId??item.id??item.food_id;
+  const itemName=item.foodName||item.food||item.name||item.itemName||"";
+  let food=null;
+  if(itemId!==undefined&&itemId!==null)food=foods.find(f=>String(f.id??f.foodId??f.food_id)===String(itemId));
+  if(!food&&itemName)food=foods.find(f=>getFoodName(f).trim().toLowerCase()===String(itemName).trim().toLowerCase());
+  if(!food&&item.foodDetails&&typeof item.foodDetails==="object")food=item.foodDetails;
+  if(food&&!result.some(f=>String(f.id??f.foodId??getFoodName(f))===String(food.id??food.foodId??getFoodName(food))))result.push(food);
+ });
+ return result;
+}
+function updatePreorderOptions(){
+ updatePreorderCategories();
+ const available=getPreorderAvailableFoods();
+ if(selectedPreFood&&!available.some(f=>String(f.id??f.foodId)===String(selectedPreFood.id??selectedPreFood.foodId)))selectedPreFood=null;
+ renderPreorderFoods();updatePreorderPrice();
+}
+function renderPreorderFoods(){
+ updatePreorderCategories();
+ const list=document.getElementById("preFoodCards"),category=document.getElementById("preCategory").value||"All",available=getPreorderAvailableFoods();
+ const filtered=category==="All"?available:available.filter(f=>getFoodCategory(f).toLowerCase()===category.toLowerCase());
+ if(!filtered.length){
+  list.innerHTML='<div class="card empty">No food cards available for this date, session and category. Please check Admin Weekly Menu.</div>';
+  document.getElementById("preorderAvailability").textContent="No matching food is published for "+selectedDay()+" - "+document.getElementById("preSession").value+".";
+  selectedPreFood=null;updatePreorderPrice();return;
+ }
+ list.innerHTML=filtered.map(f=>{
+  const id=f.id??f.foodId??getFoodName(f);
+  return `<div class="preorder-food-card ${selectedPreFood&&String(selectedPreFood.id??selectedPreFood.foodId)===String(id)?"selected":""}" onclick="selectPreorderFood('${escapeJS(id)}')">
+   <div class="food-top">${escapeHTML(f.emoji||"🍽️")}</div>
+   <div class="food-info"><h3>${escapeHTML(getFoodName(f))}</h3><p>Category: ${escapeHTML(getFoodCategory(f))}</p><p>Stock: ${getFoodStock(f)} ${escapeHTML(getFoodUnit(f))}</p><div class="price">₹${getFoodPrice(f).toFixed(2)}</div><button type="button" class="primary choose-btn">Select Food</button></div>
+  </div>`;
+ }).join("");
+ document.getElementById("preorderAvailability").textContent="Available foods for "+selectedDay()+" - "+document.getElementById("preSession").value+". Select one food card.";
+}
+function selectPreorderFood(id){
+ const food=getPreorderAvailableFoods().find(f=>String(f.id??f.foodId??getFoodName(f))===String(id));
+ if(!food)return;selectedPreFood=food;renderPreorderFoods();updatePreorderPrice();
+}
+function updatePreorderPrice(){
+ const f=selectedPreFood,qty=Number(document.getElementById("preQty").value);
+ if(!f){
+  document.getElementById("preFoodName").textContent="Not selected";
+  document.getElementById("preFoodCategory").textContent="Not selected";
+  document.getElementById("preFoodPrice").textContent="₹0";
+  document.getElementById("preTotal").textContent="₹0";return;
+ }
+ const valid=Number.isInteger(qty)&&qty>0?qty:0;
+ document.getElementById("preFoodName").textContent=getFoodName(f);
+ document.getElementById("preFoodCategory").textContent=getFoodCategory(f);
+ document.getElementById("preFoodPrice").textContent="₹"+getFoodPrice(f).toFixed(2);
+ document.getElementById("preTotal").textContent="₹"+(getFoodPrice(f)*valid).toFixed(2);
+}
+function confirmPreorder(){
+ const msg=document.getElementById("preMessage");msg.style.color="#d04444";
+ const date=document.getElementById("preDate").value,session=document.getElementById("preSession").value,qty=Number(document.getElementById("preQty").value),food=selectedPreFood;
+ if(!date||!food||!Number.isInteger(qty)||qty<1){msg.textContent="Please select date, session, food card and valid quantity.";return;}
+ const max=new Date();max.setDate(max.getDate()+7);
+ if(date<=localDateString(new Date())||date>localDateString(max)){msg.textContent="Please select a date within the next 7 days.";return;}
+ const current=getPreorderAvailableFoods().find(f=>String(f.id??f.foodId??getFoodName(f))===String(food.id??food.foodId??getFoodName(food)));
+ if(!current){msg.textContent="This food is no longer available in the selected weekly menu.";return;}
+ if(qty>getFoodStock(current)){msg.textContent="Requested quantity exceeds available stock.";return;}
+ const total=getFoodPrice(current)*qty,payment=document.getElementById("prePaymentMethod").value;
+ const preorder={
+  id:"PRE"+Date.now(),customer:currentUser.username,customerName:currentUser.name,date,day:selectedDay(),session,category:getFoodCategory(current),
+  items:[{foodId:current.id??current.foodId,id:current.id??current.foodId,name:getFoodName(current),price:getFoodPrice(current),quantity:qty,qty,unit:getFoodUnit(current)}],
+  subtotal:total,tax:0,total,amount:total,paymentMethod:payment,paymentStatus:"Pending",status:"Pending Confirmation",createdAt:Date.now()
+ };
+ const all=read(KEY.preorders);all.push(preorder);write(KEY.preorders,all);
+ msg.style.color="green";msg.textContent="Pre-Order submitted successfully! Booking ID: "+preorder.id+". Waiting for Admin confirmation.";
+ selectedPreFood=null;document.getElementById("preQty").value=1;
+ renderPreorderFoods();updatePreorderPrice();renderMyPreorders();
+}
+function renderMyPreorders(){
+ if(!currentUser)return;
+ const list=document.getElementById("myPreordersList");
+ const all=read(KEY.preorders).filter(p=>p.customer===currentUser.username).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ if(!all.length){list.innerHTML='<div class="card empty">You have not made any pre-orders yet.</div>';return;}
+ list.innerHTML=all.map(p=>`
+  <div class="preorder-card"><h3>🗓️ Booking ID: ${escapeHTML(p.id)}</h3>
+   <p><b>Booking Date:</b> ${escapeHTML(p.date||"")}</p><p><b>Day:</b> ${escapeHTML(p.day||"")}</p>
+   <p><b>Session:</b> ${escapeHTML(p.session||"")}</p><p><b>Category:</b> ${escapeHTML(p.category||"")}</p>
+   <p><b>Food Items:</b></p><ul style="padding-left:20px;margin:9px 0">${(p.items||[]).map(i=>`<li>${escapeHTML(i.name||i.foodName)} × ${Number(i.quantity||i.qty||1)} ${escapeHTML(i.unit||"")}</li>`).join("")}</ul>
+   <p><b>Total Amount:</b> ₹${Number(p.total||p.amount||0).toFixed(2)}</p><p><b>Payment Method:</b> ${escapeHTML(p.paymentMethod||"")}</p>
+   <p><b>Payment Status:</b> <span class="status">${escapeHTML(p.paymentStatus||"Pending")}</span></p>
+   <p><b>Booking Status:</b> <span class="status">${escapeHTML(p.status||"Pending Confirmation")}</span></p>
+  </div>`).join("");
+}
+window.addEventListener("storage",()=>{
+ if(currentUser){refreshAll();updatePreorderCategories();renderPreorderFoods();}
+});
+</script>
+</body>
+</html>
