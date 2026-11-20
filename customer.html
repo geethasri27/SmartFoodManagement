@@ -1,4 +1,3 @@
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -421,15 +420,139 @@ function confirmOrder(){
  write(KEY.foods,foods);
  const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0),tax=subtotal*.05,total=subtotal+tax;
  const method=document.getElementById("paymentMethod").value==="UPI"?"UPI - "+document.getElementById("upiApp").value:"Pay at Cash Counter";
- const order={id:"ORD"+Date.now(),customer:currentUser.username,customerName:currentUser.name,date:new Date().toLocaleString(),items:cart.map(i=>({...i,quantity:i.qty})),subtotal,tax,total,amount:total,paymentMethod:method,paymentStatus:"Pending",orderStatus:"Pending",createdAt:Date.now()};
+ const order={id:"ORD"+Date.now(),customer:currentUser.username,customerName:currentUser.name,date:new Date().toLocaleString(),items:cart.map(i=>({...i,quantity:i.qty})),subtotal,tax,total,amount:total,paymentMethod:method,paymentStatus:"Pending",paymentReference:"",paymentSubmitted:false,orderStatus:"Pending",createdAt:Date.now()};
  const orders=read(KEY.orders);orders.push(order);write(KEY.orders,orders);cart=[];
- msg.style.color="green";msg.textContent="Order confirmed! Order ID: "+order.id+" | Payment: "+method+" | Status: Pending";
+ msg.style.color="green";msg.textContent="Order submitted successfully! Order ID: "+order.id+" | Payment: "+method+" | Order Status: Pending | Payment Status: Pending";
  refreshAll();
 }
+
+/* CUSTOMER UPI PAYMENT REFERENCE SUBMISSION */
+function submitPaymentReference(orderId){
+ const referenceInput=document.getElementById("paymentRef_"+orderId);
+ const reference=referenceInput?referenceInput.value.trim():"";
+
+ if(!reference){
+  alert("Please enter UPI Transaction ID.");
+  return;
+ }
+
+ const orders=read(KEY.orders);
+ const order=orders.find(o=>String(o.id)===String(orderId));
+
+ if(!order||order.customer!==currentUser.username){
+  alert("Order not found.");
+  return;
+ }
+
+ if(String(order.orderStatus||"Pending").toLowerCase()!=="confirmed"){
+  alert("Please wait for Admin Order Confirmation.");
+  return;
+ }
+
+ if(String(order.paymentStatus||"Pending").toLowerCase()==="received"){
+  alert("Payment has already been confirmed.");
+  renderOrders();
+  return;
+ }
+
+ order.paymentReference=reference;
+ order.paymentSubmitted=true;
+ order.paymentSubmittedAt=Date.now();
+
+ write(KEY.orders,orders);
+ renderOrders();
+
+ alert("UPI Transaction ID submitted successfully. Waiting for Admin Payment Verification.");
+}
+
+/* CUSTOMER ORDER AND PAYMENT STATUS */
 function renderOrders(){
- const orders=read(KEY.orders).filter(o=>o.customer===currentUser.username).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)),list=document.getElementById("ordersList");
- if(!orders.length){list.innerHTML='<div class="card empty">No orders found. Place your first order!</div>';return;}
- list.innerHTML=orders.map(o=>`<div class="order-card"><h3>Order ID: ${escapeHTML(o.id)}</h3><p style="color:#888;font-size:13px;margin:8px 0">${escapeHTML(o.date||"")}</p><b>Food Items:</b><ul style="padding-left:20px;margin:10px 0">${(o.items||[]).map(i=>`<li>${escapeHTML(i.name||i.foodName)} × ${Number(i.qty||i.quantity||1)}</li>`).join("")}</ul><p><b>Total Amount:</b> ₹${Number(o.total||o.amount||0).toFixed(2)}</p><p style="margin:8px 0">Payment Method: <b>${escapeHTML(o.paymentMethod||"")}</b></p><p>Payment Status: <span class="status">${escapeHTML(o.paymentStatus||"Pending")}</span></p><p>Order Status: <span class="status">${escapeHTML(o.orderStatus||"Pending")}</span></p></div>`).join("");
+ const orders=read(KEY.orders)
+ .filter(o=>o.customer===currentUser.username)
+ .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+ const list=document.getElementById("ordersList");
+
+ if(!orders.length){
+  list.innerHTML='<div class="card empty">No orders found. Place your first order!</div>';
+  return;
+ }
+
+ list.innerHTML=orders.map(o=>{
+  const paymentReceived=String(o.paymentStatus||"Pending").toLowerCase()==="received";
+  const orderConfirmed=String(o.orderStatus||"Pending").toLowerCase()==="confirmed";
+  const isUPI=String(o.paymentMethod||"").toUpperCase().includes("UPI");
+
+  let paymentSection="";
+
+  if(paymentReceived){
+   paymentSection=`
+    <div class="payment-info" style="background:#e0f8e9;color:#167b43;border:1px solid #a9e8bf">
+     <b>✓ Payment Successful – Payment Received</b><br>
+     Your payment has been verified by Admin.
+    </div>`;
+  }else if(isUPI&&orderConfirmed){
+   if(o.paymentSubmitted){
+    paymentSection=`
+     <div class="payment-info">
+      ✓ UPI Transaction ID Submitted: <b>${escapeHTML(o.paymentReference||"")}</b><br>
+      Payment verification is pending with Admin.
+     </div>`;
+   }else{
+    paymentSection=`
+     <div class="payment-choice">
+      <label>Enter UPI Transaction ID</label>
+      <input type="text" id="paymentRef_${escapeJS(o.id)}" placeholder="Enter your UPI Transaction ID">
+      <button class="primary" onclick="submitPaymentReference('${escapeJS(o.id)}')">
+       Submit Payment Reference ✓
+      </button>
+     </div>`;
+   }
+  }else if(!paymentReceived&&!isUPI){
+   paymentSection=`
+    <div class="payment-info">
+     Please pay the amount at the restaurant Cash Counter. Payment will be marked as received after Admin verification.
+    </div>`;
+  }else{
+   paymentSection=`
+    <div class="payment-info">
+     Your order is waiting for Admin confirmation. Payment submission will be available after order confirmation.
+    </div>`;
+  }
+
+  return `
+   <div class="order-card">
+    <h3>Order ID: ${escapeHTML(o.id)}</h3>
+    <p style="color:#888;font-size:13px;margin:8px 0">${escapeHTML(o.date||"")}</p>
+
+    <b>Food Items:</b>
+    <ul style="padding-left:20px;margin:10px 0">
+     ${(o.items||[]).map(i=>`<li>${escapeHTML(i.name||i.foodName)} × ${Number(i.qty||i.quantity||1)}</li>`).join("")}
+    </ul>
+
+    <p><b>Total Amount:</b> ₹${Number(o.total||o.amount||0).toFixed(2)}</p>
+
+    <p style="margin:8px 0">
+     Payment Method: <b>${escapeHTML(o.paymentMethod||"")}</b>
+    </p>
+
+    <p>
+     Payment Status:
+     <span class="status" style="${paymentReceived?'background:#d9f8e5;color:#168044':''}">
+      ${paymentReceived?'✓ Payment Received':'Payment Pending'}
+     </span>
+    </p>
+
+    <p style="margin-top:8px">
+     Order Status:
+     <span class="status" style="${orderConfirmed?'background:#d9f8e5;color:#168044':''}">
+      ${orderConfirmed?'✓ Order Confirmed':'Order Pending'}
+     </span>
+    </p>
+
+    ${paymentSection}
+   </div>`;
+ }).join("");
 }
 function renderWeekly(){
  const menu=read(KEY.weekly),tbody=document.getElementById("weeklyList"),foods=read(KEY.foods);

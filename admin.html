@@ -1,4 +1,3 @@
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,7 +73,12 @@ th{color:#8a789f;background:#faf8fd}
 .alert{background:#fff3e8;color:#b36a23;padding:12px;border-radius:10px;margin-bottom:12px;font-size:12px}
 .help{font-size:11px;color:#8b7c9c;margin-top:5px}
 .weekly-card{background:#fff;border:1px solid #eee5f7;border-radius:13px;padding:15px;margin-bottom:12px}
-.weekly-card h4{margin:0 0 8px}
+.status-green{background:#e5f8eb;color:#218642}
+.status-orange{background:#fff0e6;color:#c66c24}
+.status-red{background:#fff0f2;color:#d94d70}
+.action-btn{padding:10px 13px;border-radius:9px;color:white;font-size:11px;font-weight:700;margin:8px 5px 0 0}
+.confirm-order{background:#7138c8}
+.confirm-payment{background:#219653}
 @media(max-width:900px){.sidebar{width:210px}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.app{display:block}.sidebar{width:100%;padding:12px}.brand{padding:5px 8px 12px}.admin-info{display:none}.nav-title{display:none}.sidebar nav{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}.nav-btn{margin:0;padding:10px;font-size:11px}.main{padding:13px}.topbar h2{font-size:18px}.welcome{padding:20px}.welcome:after{right:10px;font-size:55px}.stats{gap:9px}.stat{padding:13px}.stat h2{font-size:21px}.form-grid{grid-template-columns:1fr}}
 </style>
@@ -275,14 +279,9 @@ function showPage(id,btn){
  if(btn)btn.classList.add("active");
 
  const titles = {
-  home:"Dashboard",
-  foods:"Food Menu",
-  weekly:"Weekly Menu",
-  orders:"Food Orders",
-  preorders:"Customer Preorder",
-  stock:"Stock Management",
-  analytics:"Sales Analytics",
-  report:"Progress Report"
+  home:"Dashboard",foods:"Food Menu",weekly:"Weekly Menu",
+  orders:"Food Orders",preorders:"Customer Preorder",
+  stock:"Stock Management",analytics:"Sales Analytics",report:"Progress Report"
  };
 
  $("pageTitle").textContent = titles[id] || "Dashboard";
@@ -293,20 +292,15 @@ function showPage(id,btn){
 
 function clearFoodForm(){
  ["foodName","foodStock","foodPrice","foodImage"].forEach(id=>$(id).value="");
-
  $("foodCategory").selectedIndex = 0;
  $("foodSession").selectedIndex = 0;
  $("foodUnit").selectedIndex = 0;
-
  editingFoodId = null;
-
  $("foodSubmitBtn").textContent = "＋ Add Food Item";
  $("foodCancelBtn").classList.add("hidden");
 }
 
-function cancelFoodEdit(){
- clearFoodForm();
-}
+function cancelFoodEdit(){clearFoodForm()}
 
 function saveFood(){
  const name = $("foodName").value.trim();
@@ -317,14 +311,12 @@ function saveFood(){
   alert("Please fill Food Name, Quantity and Price");
   return;
  }
-
  if(Number(stock) < 0 || Number(price) < 0){
   alert("Quantity and Price cannot be negative");
   return;
  }
 
  const foods = getData(FOOD_KEY);
-
  const item = {
   name,
   category:$("foodCategory").value,
@@ -337,11 +329,7 @@ function saveFood(){
 
  if(editingFoodId !== null){
   const index = foods.findIndex(f=>String(f.id) === String(editingFoodId));
-
-  if(index !== -1){
-   foods[index] = {...foods[index],...item};
-  }
-
+  if(index !== -1)foods[index] = {...foods[index],...item};
   saveData(FOOD_KEY,foods);
   alert("Food item updated successfully!");
  }else{
@@ -360,7 +348,6 @@ function editFood(id){
  if(!food)return;
 
  editingFoodId = food.id;
-
  $("foodName").value = food.name || "";
  $("foodCategory").value = food.category || "South Indian";
  $("foodSession").value = food.session || "Breakfast";
@@ -368,45 +355,33 @@ function editFood(id){
  $("foodStock").value = food.stock ?? 0;
  $("foodPrice").value = food.price ?? 0;
  $("foodImage").value = food.image || "";
-
  $("foodSubmitBtn").textContent = "Save Food Changes";
  $("foodCancelBtn").classList.remove("hidden");
 
  document.querySelectorAll(".page").forEach(p=>{
   if(p.id !== "foods")p.classList.add("hidden");
  });
-
  $("foods").classList.remove("hidden");
  $("pageTitle").textContent = "Edit Food Item";
-
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function deleteFood(id){
  if(!confirm("Delete this food item?"))return;
-
  const foods = getData(FOOD_KEY);
  const food = foods.find(f=>String(f.id) === String(id));
 
- saveData(
-  FOOD_KEY,
-  foods.filter(f=>String(f.id) !== String(id))
- );
+ saveData(FOOD_KEY,foods.filter(f=>String(f.id) !== String(id)));
 
  if(food){
   const weekly = getData(WEEK_KEY).filter(w=>
    String(w.foodId || "") !== String(id) &&
-   String(w.foodName || w.food || "").toLowerCase() !==
-   String(food.name || "").toLowerCase()
+   String(w.foodName || w.food || "").toLowerCase() !== String(food.name || "").toLowerCase()
   );
-
   saveData(WEEK_KEY,weekly);
  }
 
- if(String(editingFoodId) === String(id)){
-  clearFoodForm();
- }
-
+ if(String(editingFoodId) === String(id))clearFoodForm();
  syncCategories();
  refreshAll();
 }
@@ -424,43 +399,31 @@ function getWeeklyData(){
 
   const matched = foods.find(f=>
    (w.foodId !== undefined && String(f.id) === String(w.foodId)) ||
-   String(f.name || "").trim().toLowerCase() ===
-   String(oldName).trim().toLowerCase()
+   String(f.name || "").trim().toLowerCase() === String(oldName).trim().toLowerCase()
   );
 
   const item = {
-   ...w,
-   id:oldId,
+   ...w,id:oldId,
    foodId:matched ? matched.id : (w.foodId ?? ""),
    foodName:matched ? matched.name : oldName,
    food:matched ? matched.name : oldName
   };
 
-  if(w.id === undefined ||
-     w.foodName !== item.foodName ||
-     String(w.foodId ?? "") !== String(item.foodId ?? "")){
-   changed = true;
-  }
+  if(w.id === undefined || w.foodName !== item.foodName ||
+     String(w.foodId ?? "") !== String(item.foodId ?? ""))changed = true;
 
   return item;
  });
 
- if(changed){
-  saveData(WEEK_KEY,list);
- }
-
+ if(changed)saveData(WEEK_KEY,list);
  return list;
 }
 
 function populateWeekFoodOptions(selectedId=""){
  const foods = getData(FOOD_KEY);
-
  $("weekFoodSelect").innerHTML =
   '<option value="">-- Select Food Item --</option>' +
-  foods.map(f=>
-   `<option value="${safe(f.id)}">${safe(f.name)} (${safe(f.category || "General")})</option>`
-  ).join("");
-
+  foods.map(f=>`<option value="${safe(f.id)}">${safe(f.name)} (${safe(f.category || "General")})</option>`).join("");
  $("weekFoodSelect").value = String(selectedId);
 }
 
@@ -468,29 +431,21 @@ function clearWeeklyForm(){
  $("weekDay").selectedIndex = 0;
  $("weekSession").selectedIndex = 0;
  $("weekFoodSelect").value = "";
-
  editingWeeklyId = null;
-
  $("weeklySubmitBtn").textContent = "＋ Add to Weekly Menu";
  $("weeklyCancelBtn").classList.add("hidden");
 }
 
-function cancelWeeklyEdit(){
- clearWeeklyForm();
-}
+function cancelWeeklyEdit(){clearWeeklyForm()}
 
 function saveWeekly(){
  const foodId = $("weekFoodSelect").value;
-
  if(!foodId){
   alert("Please select a food item from Food Menu");
   return;
  }
 
- const food = getData(FOOD_KEY).find(f=>
-  String(f.id) === String(foodId)
- );
-
+ const food = getData(FOOD_KEY).find(f=>String(f.id) === String(foodId));
  if(!food){
   alert("Selected food item was not found. Please try again.");
   populateWeekFoodOptions();
@@ -498,7 +453,6 @@ function saveWeekly(){
  }
 
  const list = getWeeklyData();
-
  const item = {
   day:$("weekDay").value,
   session:$("weekSession").value,
@@ -508,23 +462,12 @@ function saveWeekly(){
  };
 
  if(editingWeeklyId !== null){
-  const index = list.findIndex(w=>
-   String(w.id) === String(editingWeeklyId)
-  );
-
-  if(index !== -1){
-   list[index] = {...list[index],...item};
-  }else{
-   list.push({id:editingWeeklyId,...item});
-  }
-
+  const index = list.findIndex(w=>String(w.id) === String(editingWeeklyId));
+  if(index !== -1)list[index] = {...list[index],...item};
+  else list.push({id:editingWeeklyId,...item});
   alert("Weekly Menu Updated Successfully!");
  }else{
-  list.push({
-   id:Date.now(),
-   ...item
-  });
-
+  list.push({id:Date.now(),...item});
   alert("Food Added to Weekly Menu Successfully!");
  }
 
@@ -535,55 +478,116 @@ function saveWeekly(){
 
 function editWeekly(id){
  const list = getWeeklyData();
-
- const item = list.find(w=>
-  String(w.id) === String(id)
- );
-
+ const item = list.find(w=>String(w.id) === String(id));
  if(!item){
   alert("Weekly menu item not found!");
   return;
  }
 
  editingWeeklyId = item.id;
-
  $("weekDay").value = item.day || "Monday";
  $("weekSession").value = item.session || "Breakfast";
-
  populateWeekFoodOptions(item.foodId || "");
-
  $("weeklySubmitBtn").textContent = "Save Weekly Menu Changes";
  $("weeklyCancelBtn").classList.remove("hidden");
 
- document.querySelectorAll(".page").forEach(p=>
-  p.classList.add("hidden")
- );
-
+ document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
  $("weekly").classList.remove("hidden");
  $("pageTitle").textContent = "Edit Weekly Menu";
-
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function deleteWeekly(id){
- if(!confirm("Are you sure you want to delete this menu item?")){
+ if(!confirm("Are you sure you want to delete this menu item?"))return;
+ const list = getWeeklyData();
+ saveData(WEEK_KEY,list.filter(w=>String(w.id) !== String(id)));
+ if(String(editingWeeklyId) === String(id))clearWeeklyForm();
+ refreshAll();
+}
+
+/* ORDER AND PAYMENT CONFIRMATION */
+
+/* Confirming an order does NOT confirm its payment. */
+function confirmAdminOrder(orderId){
+ const orders = getData(ORDER_KEY);
+ const index = orders.findIndex(o=>String(o.id) === String(orderId));
+
+ if(index === -1){
+  alert("Order not found!");
   return;
  }
 
- const list = getWeeklyData();
-
- const updatedList = list.filter(w=>
-  String(w.id) !== String(id)
- );
-
- saveData(WEEK_KEY,updatedList);
-
- if(String(editingWeeklyId) === String(id)){
-  clearWeeklyForm();
+ if(String(orders[index].orderStatus || "").toLowerCase() === "confirmed"){
+  alert("This order is already confirmed!");
+  return;
  }
 
+ if(!confirm("Confirm this customer order?"))return;
+
+ orders[index] = {
+  ...orders[index],
+  orderStatus:"Confirmed",
+  orderConfirmedAt:new Date().toLocaleString()
+ };
+
+ saveData(ORDER_KEY,orders);
  refreshAll();
+ alert("Order Confirmed Successfully!");
 }
+
+/* Confirming payment does NOT change order status. */
+function markPaymentReceived(orderId){
+ const orders = getData(ORDER_KEY);
+ const index = orders.findIndex(o=>String(o.id) === String(orderId));
+
+ if(index === -1){
+  alert("Order not found!");
+  return;
+ }
+
+ const order = orders[index];
+ const method = String(order.paymentMethod || "").trim().toLowerCase();
+ const isCash = method.includes("cash counter");
+ const isUPI = method.startsWith("upi");
+
+ if(String(order.paymentStatus || "").toLowerCase() === "received"){
+  alert("Payment already received!");
+  return;
+ }
+
+ if(String(order.orderStatus || "").toLowerCase() !== "confirmed"){
+  alert("Please confirm the order first.");
+  return;
+ }
+
+ if(isUPI && !order.paymentSubmitted){
+  alert("Customer has not submitted the UPI transaction reference yet.");
+  return;
+ }
+
+ if(!isUPI && !isCash){
+  alert("Payment method is not recognised.");
+  return;
+ }
+
+ const message = isCash
+  ? "Have you received the cash payment at the counter?"
+  : "Have you checked and verified the UPI payment?";
+
+ if(!confirm(message))return;
+
+ orders[index] = {
+  ...order,
+  paymentStatus:"Received",
+  paymentReceivedAt:new Date().toLocaleString()
+ };
+
+ saveData(ORDER_KEY,orders);
+ refreshAll();
+ alert("Payment Received Successfully!");
+}
+
+/* WEEKLY MENU DISPLAY */
 
 function renderWeekly(){
  const list = getWeeklyData();
@@ -595,8 +599,7 @@ function renderWeekly(){
    <button class="edit" onclick="editWeekly('${safe(w.id)}')">✏️ Edit</button>
    <button class="delete" onclick="deleteWeekly('${safe(w.id)}')">🗑️ Delete</button>
   </div>
- `).join("") ||
- '<div class="empty">No weekly menu added. Select food items above to create your weekly menu.</div>';
+ `).join("") || '<div class="empty">No weekly menu added. Select food items above to create your weekly menu.</div>';
 }
 
 /* DISPLAY FOOD ITEMS */
@@ -626,7 +629,9 @@ function refreshAll(){
  const preorders = getData(PRE_KEY);
 
  const low = foods.filter(f=>Number(f.stock) <= 5);
- const sales = orders.reduce((sum,o)=>sum + Number(o.total || 0),0);
+ const sales = orders
+  .filter(o=>String(o.paymentStatus || "").toLowerCase() === "received")
+  .reduce((sum,o)=>sum + Number(o.total || o.amount || 0),0);
 
  syncCategories();
 
@@ -636,26 +641,86 @@ function refreshAll(){
  $("lowStockCount").textContent = low.length;
 
  $("salesTotal").textContent = "₹" + sales.toFixed(2);
- $("salesOrders").textContent = orders.length;
+ $("salesOrders").textContent = orders.filter(o=>
+  String(o.paymentStatus || "").toLowerCase() === "received"
+ ).length;
 
  renderFoods(foods);
 
- const selectedFoodId = editingWeeklyId !== null
-  ? $("weekFoodSelect").value
-  : "";
-
+ const selectedFoodId = editingWeeklyId !== null ? $("weekFoodSelect").value : "";
  populateWeekFoodOptions(selectedFoodId);
  renderWeekly();
 
- $("orderList").innerHTML = orders.map(o=>`
-  <div class="food-card food-body" style="margin-bottom:12px">
-   <h4>Order #${safe(o.id || "")}</h4>
-   <p>Customer: ${safe(o.customer || "Customer")}</p>
-   <p>Food: ${safe(o.food || "")}</p>
-   <p>Amount: ₹${Number(o.total || 0).toFixed(2)}</p>
-   <p>Date: ${safe(o.date || "")}</p>
-  </div>
- `).join("") || '<div class="empty">No customer orders received.</div>';
+ /* CUSTOMER ORDER LIST */
+ $("orderList").innerHTML = orders.slice().reverse().map(o=>{
+  const method = String(o.paymentMethod || "").trim();
+  const methodLower = method.toLowerCase();
+  const isCash = methodLower.includes("cash counter");
+  const isUPI = methodLower.startsWith("upi");
+
+  const isReceived = String(o.paymentStatus || "").toLowerCase() === "received";
+  const isConfirmed = String(o.orderStatus || "").toLowerCase() === "confirmed";
+  const paymentSubmitted = Boolean(o.paymentSubmitted);
+
+  const paymentStatus = isReceived
+   ? '<span class="tag status-green">✓ Payment Received</span>'
+   : '<span class="tag status-orange">Payment Pending</span>';
+
+  const orderStatus = isConfirmed
+   ? '<span class="tag status-green">✓ Order Confirmed</span>'
+   : '<span class="tag status-red">Order Pending</span>';
+
+  let paymentInfo = "";
+
+  if(isUPI){
+   paymentInfo = paymentSubmitted
+    ? `<p><b>UPI Transaction Reference:</b> ${safe(o.paymentReference || "Not provided")}</p>
+       <span class="tag status-green">Customer Submitted Payment Details</span>`
+    : '<p><b>UPI Transaction Reference:</b> Not submitted yet</p>';
+  }else if(isCash){
+   paymentInfo = '<p>Cash payment should be collected at the restaurant counter.</p>';
+  }
+
+  const orderButton = !isConfirmed
+   ? `<button class="action-btn confirm-order" onclick="confirmAdminOrder('${safe(o.id)}')">✓ Confirm Order</button>`
+   : '<span class="tag status-green">Order Confirmed</span>';
+
+  let paymentButton = "";
+
+  if(!isReceived && isConfirmed){
+   if(isCash){
+    paymentButton = `<button class="action-btn confirm-payment" onclick="markPaymentReceived('${safe(o.id)}')">✓ Confirm Payment</button>`;
+   }else if(isUPI && paymentSubmitted){
+    paymentButton = `<button class="action-btn confirm-payment" onclick="markPaymentReceived('${safe(o.id)}')">✓ Confirm Payment</button>`;
+   }else if(isUPI){
+    paymentButton = '<p class="help">Waiting for customer UPI transaction reference.</p>';
+   }
+  }else if(isReceived){
+   paymentButton = '<span class="tag status-green">✓ Payment Verified</span>';
+  }else if(!isConfirmed){
+   paymentButton = '<p class="help">Confirm the order first to enable payment confirmation.</p>';
+  }
+
+  const itemsText = Array.isArray(o.items)
+   ? o.items.map(i=>`${safe(i.name || i.food || "Food")} × ${Number(i.quantity || i.qty || 1)}`).join(", ")
+   : safe(o.food || "");
+
+  return `
+   <div class="food-card food-body" style="margin-bottom:12px">
+    <h4>Order #${safe(o.id || "")}</h4>
+    <p><b>Customer:</b> ${safe(o.customerName || o.customer || "Customer")}</p>
+    <p><b>Food:</b> ${itemsText}</p>
+    <p><b>Amount:</b> ₹${Number(o.total || o.amount || 0).toFixed(2)}</p>
+    <p><b>Date:</b> ${safe(o.date || "")}</p>
+    <p><b>Payment Method:</b> ${safe(method || "Not specified")}</p>
+    <p><b>Order Status:</b> ${orderStatus}</p>
+    <p><b>Payment Status:</b> ${paymentStatus}</p>
+    ${paymentInfo}
+    ${orderButton}
+    ${paymentButton}
+   </div>
+  `;
+ }).join("") || '<div class="empty">No customer orders received.</div>';
 
  $("preorderList").innerHTML = preorders.map(p=>`
   <div class="food-card food-body" style="margin-bottom:12px">
@@ -671,7 +736,7 @@ function refreshAll(){
    <b>${safe(f.name)}</b>
    <p>Available: ${Number(f.stock) || 0} ${safe(f.unit || "")}</p>
    ${Number(f.stock) <= 5
-    ? '<span class="tag" style="background:#fff0e6;color:#c66c24">Low Stock Alert</span>'
+    ? '<span class="tag status-orange">Low Stock Alert</span>'
     : '<span class="tag">Stock Available</span>'}
   </div>
  `).join("") || '<div class="empty">No stock information available.</div>';
@@ -681,18 +746,21 @@ function refreshAll(){
  ).join("") || '<div class="empty">All food items have sufficient stock.</div>';
 
  $("recentOrders").innerHTML = orders.slice(-5).reverse().map(o=>
-  `<p>🛍️ ${safe(o.customer || "Customer")} — ₹${Number(o.total || 0).toFixed(2)}</p>`
+  `<p>🛍️ ${safe(o.customer || o.customerName || "Customer")} — ₹${Number(o.total || o.amount || 0).toFixed(2)} — ${safe(o.orderStatus || "Pending")}</p>`
  ).join("") || '<div class="empty">No recent orders.</div>';
 
  $("salesSummary").innerHTML = `
   <p>Total orders: <b>${orders.length}</b></p>
-  <p>Total sales recorded: <b>₹${sales.toFixed(2)}</b></p>
+  <p>Payments received: <b>${orders.filter(o=>String(o.paymentStatus || "").toLowerCase()==="received").length}</b></p>
+  <p>Total sales received: <b>₹${sales.toFixed(2)}</b></p>
   <p>Food varieties: <b>${foods.length}</b></p>
  `;
 
  $("progressReport").innerHTML = `
   <p>Food varieties added: <b>${foods.length}</b></p>
   <p>Customer orders received: <b>${orders.length}</b></p>
+  <p>Confirmed orders: <b>${orders.filter(o=>String(o.orderStatus || "").toLowerCase()==="confirmed").length}</b></p>
+  <p>Payments received: <b>${orders.filter(o=>String(o.paymentStatus || "").toLowerCase()==="received").length}</b></p>
   <p>Preorders received: <b>${preorders.length}</b></p>
   <p>Low stock items: <b>${low.length}</b></p>
  `;
